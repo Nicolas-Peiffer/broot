@@ -3,6 +3,12 @@ use cli_log::*;
 fn main() {
     init_cli_log!();
     debug!("env::args(): {:#?}", std::env::args().collect::<Vec<String>>());
+
+    let args = Args::parse();
+
+    // Handle completion generation
+    args.run();
+
     match broot::cli::run() {
         Ok(Some(launchable)) => {
             debug!("launching {:#?}", launchable);

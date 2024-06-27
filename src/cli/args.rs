@@ -1,22 +1,19 @@
-// Warning: this module can't import broot's stuf due to its use in build.rs
+// Warning: this module can't import broot's stuff due to its use in build.rs
 use {
-    clap::{Parser, ValueEnum},
-    std::{
-        path::PathBuf,
-        str::FromStr,
-    },
+    clap::{Parser, Subcommand, ValueEnum},
+    clap_complete::generate,
+    std::{io, path::PathBuf, str::FromStr},
 };
 
 /// Launch arguments
 #[derive(Debug, Parser)]
 #[command(about, version, disable_version_flag = true, disable_help_flag = true)]
 pub struct Args {
-
     /// Print help information
     #[arg(long)]
     pub help: bool,
 
-    /// print the version
+    /// Print the version
     #[arg(long)]
     pub version: bool,
 
@@ -193,6 +190,19 @@ pub struct Args {
 
     /// Root Directory
     pub root: Option<PathBuf>,
+
+    #[command(subcommand)]
+    pub command: Option<Commands>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Commands {
+    /// Generate shell completion scripts
+    Completions {
+        /// The shell to generate the script for
+        #[arg(value_enum)]
+        shell: clap_complete::Shell,
+    },
 }
 
 /// This is an Option<bool> but I didn't find any way to configure
@@ -223,6 +233,7 @@ pub enum CliShellInstallState {
     Refused,
     Installed,
 }
+
 impl FromStr for CliShellInstallState {
     type Err = String;
     fn from_str(state: &str) -> Result<Self, Self::Err> {
@@ -234,5 +245,16 @@ impl FromStr for CliShellInstallState {
                 format!("unexpected install state: {state:?}")
             ),
         }
+    }
+}
+
+impl Args {
+    pub fn run(&self) {
+        if let Some(Commands::Completions { shell }) = &self.command {
+            let mut cmd = Args::command() ;
+            generate(*shell, &mut cmd, "broot", &mut io::stdout());
+            return;
+        }
+        // Other command handling logic...
     }
 }

@@ -29,6 +29,7 @@ bet = "1.0.3"
 char_reader = "0.1"
 chrono = "0.4"
 clap = { version = "4.4", features = ["derive", "cargo"] }
+clap_complete = "4.0"
 clap-help = "1.2.0"
 cli-log = "2.0"
 crokey = "1.0.0"
